@@ -5,6 +5,7 @@ from gi.repository import Gtk, Gdk, GLib
 import cairo
 import math
 import time
+import copy
 
 from pencil import Line, Pencil
 
@@ -15,6 +16,9 @@ class MainWindow(Gtk.Window):
         super(MainWindow, self).__init__()
 
         # -- Variables --
+        self._h_mirror = True
+        self._v_mirror = True
+
         self._last_x = 0
         self._last_y = 0
 
@@ -29,12 +33,8 @@ class MainWindow(Gtk.Window):
         # ---- Initialize the pencils. ----
         self._pencils = []
 
-        for i in range(0, 25):
-            self._pencils.append(Pencil(0, i * 2, 0.2, 0.8, 0.2, 0.5))
-        for i in range(0, 25):
-            self._pencils.append(Pencil(0, 50 + i * 2, 0.2, 0.2, 0.8, 0.5))
-
-        print(len(self._pencils))
+        for i in range(0, 50):
+            self._pencils.append(Pencil(0, 0, 0.2, 0.8, 0.8, 0.5))
 
         # -- Drawing area --
 
@@ -42,11 +42,13 @@ class MainWindow(Gtk.Window):
 
         # Capture button presses in drawing area.
         self._area.add_events(Gdk.EventMask.BUTTON_PRESS_MASK)
+        self.add_events(Gdk.EventMask.KEY_PRESS_MASK)
         self._area.add_events(Gdk.EventMask.BUTTON_RELEASE_MASK)
         self._area.add_events(Gdk.EventMask.POINTER_MOTION_MASK)
 
         # Connect events.
         self._area.connect('draw', self._draw)
+        self.connect('key-press-event', self._key_press)
         self._area.connect('button-press-event', self._button_press)
         self._area.connect('button-release-event', self._button_release)
         self._area.connect('motion-notify-event', self._motion_notify)
@@ -69,10 +71,85 @@ class MainWindow(Gtk.Window):
 
         # Update the pencils and when the mouse is down, add the lines to the buffer.
         for pencil in self._pencils:
-            line = pencil.update(dt, self._last_x, self._last_y)
+            line = pencil.update(dt, self._last_x, self._last_y, self._mouse_pressed)
 
-            if self._mouse_pressed:
+            if line:
                 self._lines.append(line)
+
+                # ---- Mirroring. ----
+                # TODO: Make better.
+
+                if self._h_mirror:
+                    mir_line = copy.copy(line)
+
+                    width = self.get_allocated_width()
+                    half_width = width / 2
+
+                    s_x = mir_line.start_x
+                    e_x = mir_line.end_x
+
+                    if s_x > half_width:
+                        s_x -= 2 * (s_x - half_width)
+                    else:
+                        s_x += 2 * (half_width - s_x)
+
+                    if e_x > half_width:
+                        e_x -= 2 * (e_x - half_width)
+                    else:
+                        e_x += 2 * (half_width - e_x)
+
+                    mir_line.start_x = s_x
+                    mir_line.end_x = e_x
+
+                    self._lines.append(mir_line)
+
+                    if self._v_mirror:
+                        mir_line = copy.copy(mir_line)
+
+                        height = self.get_allocated_height()
+                        half_height = height / 2
+
+                        s_y = mir_line.start_y
+                        e_y = mir_line.end_y
+
+                        if s_y > half_height:
+                            s_y -= 2 * (s_y - half_height)
+                        else:
+                            s_y += 2 * (half_height - s_y)
+
+                        if e_y > half_height:
+                            e_y -= 2 * (e_y - half_height)
+                        else:
+                            e_y += 2 * (half_height - e_y)
+
+                        mir_line.start_y = s_y
+                        mir_line.end_y = e_y
+
+                        self._lines.append(mir_line)
+
+                if self._v_mirror:
+                    mir_line = copy.copy(line)
+
+                    height = self.get_allocated_height()
+                    half_height = height / 2
+
+                    s_y = mir_line.start_y
+                    e_y = mir_line.end_y
+
+                    if s_y > half_height:
+                        s_y -= 2 * (s_y - half_height)
+                    else:
+                        s_y += 2 * (half_height - s_y)
+
+                    if e_y > half_height:
+                        e_y -= 2 * (e_y - half_height)
+                    else:
+                        e_y += 2 * (half_height - e_y)
+
+                    mir_line.start_y = s_y
+                    mir_line.end_y = e_y
+
+                    self._lines.append(mir_line)
 
         self._area.queue_draw()
         return True
@@ -121,6 +198,30 @@ class MainWindow(Gtk.Window):
 
         cr.arc(self._last_x, self._last_y, 25, 0, 2*math.pi)
         cr.stroke()
+
+    def _key_press(self, widget, event):
+        if event.keyval == Gdk.KEY_1:
+            # Magenta color.
+            for pencil in self._pencils:
+                pencil._col = [0.2, 0.8, 0.8, 0.5]
+
+        elif event.keyval == Gdk.KEY_2:
+            # Red color.
+            for pencil in self._pencils:
+                pencil._col = [0.8, 0.2, 0.2, 0.5]
+
+        elif event.keyval == Gdk.KEY_3:
+            # Green color.
+            for pencil in self._pencils:
+                pencil._col = [0.2, 0.8, 0.2, 0.5]
+
+        elif event.keyval == Gdk.KEY_q:
+            # Toggle horizontal mirror.
+            self._h_mirror = not self._h_mirror
+
+        elif event.keyval == Gdk.KEY_w:
+            # Toggle vertical mirror.
+            self._v_mirror = not self._v_mirror
 
     def _button_press(self, widget, event):
         if event.button == 1:
