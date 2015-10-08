@@ -15,8 +15,8 @@ class Pencil:
 
         # ---- Parameters. ----
 
-        self._max_vel = 500
-        self._max_acc = 100
+        self._max_vel = 1000
+        self._max_acc = 200
 
         # ---- Variables ----
 
@@ -31,7 +31,7 @@ class Pencil:
     def update(self, dt, t_x, t_y):
         """
         Lets the pencil move, returns the line drawn this frame.
-        :param dt: Deltatime.
+        :param dt: Delta time.
         :param t_x: Target x.
         :param t_y: Target y.
         :return: Line.
@@ -50,7 +50,7 @@ class Pencil:
         acc.set_head(dist.get_head())
 
         # Set the force according to the distance, but not higher than _max_acc.
-        acc.set_mag(0.5 * dist.get_mag())
+        acc.set_mag(min(dist.get_mag(), self._max_acc))
 
         # ---- Update velocity. ----
 

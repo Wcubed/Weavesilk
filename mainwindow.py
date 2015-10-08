@@ -29,8 +29,10 @@ class MainWindow(Gtk.Window):
         # ---- Initialize the pencils. ----
         self._pencils = []
 
-        for i in range(0, 50):
+        for i in range(0, 25):
             self._pencils.append(Pencil(0, i * 2, 0.2, 0.8, 0.2, 0.5))
+        for i in range(0, 25):
+            self._pencils.append(Pencil(0, 50 + i * 2, 0.2, 0.2, 0.8, 0.5))
 
         print(len(self._pencils))
 
