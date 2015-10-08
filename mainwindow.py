@@ -223,6 +223,10 @@ class MainWindow(Gtk.Window):
             # Toggle vertical mirror.
             self._v_mirror = not self._v_mirror
 
+        elif event.keyval == Gdk.KEY_z:
+            # Clear screen.
+            self._buffer_image = None
+
     def _button_press(self, widget, event):
         if event.button == 1:
             self._mouse_pressed = True
