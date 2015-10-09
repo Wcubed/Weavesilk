@@ -215,6 +215,16 @@ class MainWindow(Gtk.Window):
             for pencil in self._pencils:
                 pencil._col = [0.2, 0.8, 0.2, 0.5]
 
+        elif event.keyval == Gdk.KEY_4:
+            # Orange color.
+            for pencil in self._pencils:
+                pencil._col = [0.8, 0.5, 0.2, 0.5]
+
+        elif event.keyval == Gdk.KEY_5:
+            # "Black" color.
+            for pencil in self._pencils:
+                pencil._col = [0.3, 0.3, 0.3, 0.5]
+
         elif event.keyval == Gdk.KEY_q:
             # Toggle horizontal mirror.
             self._h_mirror = not self._h_mirror
@@ -226,6 +236,10 @@ class MainWindow(Gtk.Window):
         elif event.keyval == Gdk.KEY_z:
             # Clear screen.
             self._buffer_image = None
+
+        elif event.keyval == Gdk.KEY_s:
+            # Save screen to file.
+            self._buffer_image.savev('Image.png', 'png', [], [])
 
     def _button_press(self, widget, event):
         if event.button == 1:
