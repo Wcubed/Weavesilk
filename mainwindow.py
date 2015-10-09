@@ -21,6 +21,8 @@ class MainWindow(Gtk.Window):
         self._r_mirror = True
         self._r_mirror_amount = 5
 
+        self._is_fullscreen = False
+
         self._last_x = 0
         self._last_y = 0
 
@@ -206,6 +208,19 @@ class MainWindow(Gtk.Window):
             # Undo the last stroke.
             if self._undo_buffer_image:
                 self._buffer_image = self._undo_buffer_image
+
+        elif event.keyval == Gdk.KEY_f:
+            # Fullscreen.
+            if self._is_fullscreen:
+                self.unfullscreen()
+                self._is_fullscreen = False
+            else:
+                self.fullscreen()
+                self._is_fullscreen = True
+
+        elif event.keyval == Gdk.KEY_Escape:
+            # Exit.
+            Gtk.main_quit()
 
     def _button_press(self, widget, event):
         if event.button == 1:
