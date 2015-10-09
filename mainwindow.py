@@ -17,8 +17,9 @@ class MainWindow(Gtk.Window):
         super(MainWindow, self).__init__()
 
         # -- Variables --
-        self._h_mirror = True
+        self._h_mirror = False
         self._r_mirror = True
+        self._r_mirror_amount = 6
 
         self._last_x = 0
         self._last_y = 0
@@ -264,18 +265,21 @@ class MainWindow(Gtk.Window):
         mir_lines = lines[:]
         center = Vector(width / 2, height / 2)
 
+        step_angle = 2 * math.pi / self._r_mirror_amount
+
         for line in lines:
-            mir_line = copy.copy(line)
+            for i in range(1, self._r_mirror_amount):
+                mir_line = copy.copy(line)
 
-            mir_start = mir_line.start - center
-            mir_end = mir_line.end - center
+                mir_start = mir_line.start - center
+                mir_end = mir_line.end - center
 
-            mir_start.rotate(math.pi)
-            mir_end.rotate(math.pi)
+                mir_start.rotate(step_angle * i)
+                mir_end.rotate(step_angle * i)
 
-            mir_line.start = mir_start + center
-            mir_line.end = mir_end + center
+                mir_line.start = mir_start + center
+                mir_line.end = mir_end + center
 
-            mir_lines.append(mir_line)
+                mir_lines.append(mir_line)
 
         return mir_lines
