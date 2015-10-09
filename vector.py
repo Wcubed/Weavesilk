@@ -21,6 +21,12 @@ class Vector:
         """
         return Vector(self.x + other.x, self.y + other.y)
 
+    def __sub__(self, other):
+        """
+        Subtracts two vectors from each other.
+        """
+        return Vector(self.x - other.x, self.y - other.y)
+
     def __str__(self):
         """
         Converts the vector into a human readable string.
@@ -63,3 +69,10 @@ class Vector:
         """
         mag = self.get_mag()
         self.set_mag(mag * factor)
+
+    def rotate(self, angle):
+        """
+        Rotates the vector by the angle.
+        """
+        head = self.get_head()
+        self.set_head(head + angle)

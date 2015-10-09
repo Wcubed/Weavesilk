@@ -18,7 +18,7 @@ class MainWindow(Gtk.Window):
 
         # -- Variables --
         self._h_mirror = True
-        self._v_mirror = True
+        self._r_mirror = True
 
         self._last_x = 0
         self._last_y = 0
@@ -87,13 +87,14 @@ class MainWindow(Gtk.Window):
 
         # ---- Mirroring. ----
 
+        width = self.get_allocated_width()
+        height = self.get_allocated_height()
+
         if self._h_mirror:
-            width = self.get_allocated_width()
             lines = self.mirror_lines_h(lines, width)
 
-        if self._v_mirror:
-            height = self.get_allocated_height()
-            lines = self.mirror_lines_v(lines, height)
+        if self._r_mirror:
+            lines = self.mirror_lines_r(lines, width, height)
 
         for l in lines:
             self._lines.append(l)
@@ -145,7 +146,7 @@ class MainWindow(Gtk.Window):
         # Circle
         cr.set_source_rgba(1, 1, 1)
 
-        cr.arc(self._last_x, self._last_y, 25, 0, 2*math.pi)
+        cr.arc(self._last_x, self._last_y, 10, 0, 2*math.pi)
         cr.stroke()
 
     def _key_press(self, widget, event):
@@ -183,9 +184,9 @@ class MainWindow(Gtk.Window):
             # Toggle horizontal mirror.
             self._h_mirror = not self._h_mirror
 
-        elif event.keyval == Gdk.KEY_w:
-            # Toggle vertical mirror.
-            self._v_mirror = not self._v_mirror
+        elif event.keyval == Gdk.KEY_e:
+            # Toggle radial mirror.
+            self._r_mirror = not self._r_mirror
 
         elif event.keyval == Gdk.KEY_c:
             # Clear screen.
@@ -251,34 +252,29 @@ class MainWindow(Gtk.Window):
 
         return mir_lines
 
-    def mirror_lines_v(self, lines, height):
+    def mirror_lines_r(self, lines, width, height):
         """
-        Mirrors a list of lines vertically.
-        :param lines: A list of lines to be mirrored.
-        :return: The original lines, plus the mirrored ones.
+        Mirrors lines with radial symmetry.
+        :param lines:
+        :param width:
+        :param height:
+        :return:
         """
 
         mir_lines = lines[:]
-        half_height = height / 2
+        center = Vector(width / 2, height / 2)
 
         for line in lines:
             mir_line = copy.copy(line)
 
-            s_y = mir_line.start.y
-            e_y = mir_line.end.y
+            mir_start = mir_line.start - center
+            mir_end = mir_line.end - center
 
-            if s_y > half_height:
-                s_y -= 2 * (s_y - half_height)
-            else:
-                s_y += 2 * (half_height - s_y)
+            mir_start.rotate(math.pi)
+            mir_end.rotate(math.pi)
 
-            if e_y > half_height:
-                e_y -= 2 * (e_y - half_height)
-            else:
-                e_y += 2 * (half_height - e_y)
-
-            mir_line.start = Vector(mir_line.start.x, s_y)
-            mir_line.end = Vector(mir_line.end.x, e_y)
+            mir_line.start = mir_start + center
+            mir_line.end = mir_end + center
 
             mir_lines.append(mir_line)
 
