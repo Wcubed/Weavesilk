@@ -76,24 +76,26 @@ class MainWindow(Gtk.Window):
         self._last_update_time = now
 
         # Update the pencils and when the mouse is down, add the lines to the buffer.
+        lines = []
+
         for pencil in self._pencils:
             line = pencil.update(dt, self._last_x, self._last_y, self._mouse_pressed)
 
             if line:
-                lines = [line]
+                lines.append(line)
 
-                # ---- Mirroring. ----
+        # ---- Mirroring. ----
 
-                if self._h_mirror:
-                    width = self.get_allocated_width()
-                    lines = self.mirror_lines_h(lines, width)
+        if self._h_mirror:
+            width = self.get_allocated_width()
+            lines = self.mirror_lines_h(lines, width)
 
-                if self._v_mirror:
-                    height = self.get_allocated_height()
-                    lines = self.mirror_lines_v(lines, height)
+        if self._v_mirror:
+            height = self.get_allocated_height()
+            lines = self.mirror_lines_v(lines, height)
 
-                for l in lines:
-                    self._lines.append(l)
+        for l in lines:
+            self._lines.append(l)
 
         self._area.queue_draw()
         return True
