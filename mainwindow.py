@@ -68,7 +68,7 @@ class MainWindow(Gtk.Window):
 
     def _update(self):
         """
-        Updates the pencils.
+        Updates the pencils and queues a redraw of the DrawingArea.
         """
         # Calculate delta time.
         now = time.time()
@@ -125,7 +125,7 @@ class MainWindow(Gtk.Window):
 
         # ---- Save the screen ----
         now = time.time()
-        if now - self._last_buffer_time > 0.2:
+        if now - self._last_buffer_time > 0.1:
 
             # Save screen.
             drawing_window = self._area.get_window()
@@ -168,6 +168,11 @@ class MainWindow(Gtk.Window):
             # "Black" color.
             for pencil in self._pencils:
                 pencil._col = [0.3, 0.3, 0.3, 0.5]
+
+        elif event.keyval == Gdk.KEY_6:
+            # Purple color.
+            for pencil in self._pencils:
+                pencil._col = [0.8, 0.3, 0.8, 0.5]
 
         elif event.keyval == Gdk.KEY_q:
             # Toggle horizontal mirror.
