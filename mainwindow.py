@@ -8,6 +8,7 @@ import time
 import copy
 
 from pencil import Line, Pencil
+from vector import Vector
 
 
 class MainWindow(Gtk.Window):
@@ -119,10 +120,12 @@ class MainWindow(Gtk.Window):
 
         # ---- Line buffer ----
         cr.set_line_width(1)
+
         for line in self._lines:
             cr.set_source_rgba(line.r, line.g, line.b, line.a)
-            cr.move_to(line.start_x, line.start_y)
-            cr.line_to(line.end_x, line.end_y)
+
+            cr.move_to(line.start.x, line.start.y)
+            cr.line_to(line.end.x, line.end.y)
             cr.stroke()
 
         # ---- Save the screen ----
@@ -228,8 +231,8 @@ class MainWindow(Gtk.Window):
         for line in lines:
             mir_line = copy.copy(line)
 
-            s_x = mir_line.start_x
-            e_x = mir_line.end_x
+            s_x = mir_line.start.x
+            e_x = mir_line.end.x
 
             if s_x > half_width:
                 s_x -= 2 * (s_x - half_width)
@@ -241,8 +244,8 @@ class MainWindow(Gtk.Window):
             else:
                 e_x += 2 * (half_width - e_x)
 
-            mir_line.start_x = s_x
-            mir_line.end_x = e_x
+            mir_line.start = Vector(s_x, mir_line.start.y)
+            mir_line.end = Vector(e_x, mir_line.end.y)
 
             mir_lines.append(mir_line)
 
@@ -261,8 +264,8 @@ class MainWindow(Gtk.Window):
         for line in lines:
             mir_line = copy.copy(line)
 
-            s_y = mir_line.start_y
-            e_y = mir_line.end_y
+            s_y = mir_line.start.y
+            e_y = mir_line.end.y
 
             if s_y > half_height:
                 s_y -= 2 * (s_y - half_height)
@@ -274,8 +277,8 @@ class MainWindow(Gtk.Window):
             else:
                 e_y += 2 * (half_height - e_y)
 
-            mir_line.start_y = s_y
-            mir_line.end_y = e_y
+            mir_line.start = Vector(mir_line.start.x, s_y)
+            mir_line.end = Vector(mir_line.end.x, e_y)
 
             mir_lines.append(mir_line)
 

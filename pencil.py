@@ -109,11 +109,9 @@ class Line:
     Class to represent a line with a color.
     """
     def __init__(self, start_x, start_y, end_x, end_y, r, g, b, a):
-        self.start_x = start_x
-        self.start_y = start_y
+        self.start = Vector(start_x, start_y)
 
-        self.end_x = end_x
-        self.end_y = end_y
+        self.end = Vector(end_x, end_y)
 
         self.r = r
         self.g = g
