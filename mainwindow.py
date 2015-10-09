@@ -27,7 +27,13 @@ class MainWindow(Gtk.Window):
 
         self._mouse_pressed = False
 
+        # Image that holds the drawing.
         self._buffer_image = None
+
+        # Image that holds the drawing, minus the last stroke (one continuous drag with the mouse).
+        self._undo_buffer_image = None
+
+        # Line buffer.
         self._lines = []
 
         # ---- Initialize the pencils. ----
@@ -74,82 +80,20 @@ class MainWindow(Gtk.Window):
             line = pencil.update(dt, self._last_x, self._last_y, self._mouse_pressed)
 
             if line:
-                self._lines.append(line)
+                lines = [line]
 
                 # ---- Mirroring. ----
-                # TODO: Make better.
 
                 if self._h_mirror:
-                    mir_line = copy.copy(line)
-
                     width = self.get_allocated_width()
-                    half_width = width / 2
-
-                    s_x = mir_line.start_x
-                    e_x = mir_line.end_x
-
-                    if s_x > half_width:
-                        s_x -= 2 * (s_x - half_width)
-                    else:
-                        s_x += 2 * (half_width - s_x)
-
-                    if e_x > half_width:
-                        e_x -= 2 * (e_x - half_width)
-                    else:
-                        e_x += 2 * (half_width - e_x)
-
-                    mir_line.start_x = s_x
-                    mir_line.end_x = e_x
-
-                    self._lines.append(mir_line)
-
-                    if self._v_mirror:
-                        mir_line = copy.copy(mir_line)
-
-                        height = self.get_allocated_height()
-                        half_height = height / 2
-
-                        s_y = mir_line.start_y
-                        e_y = mir_line.end_y
-
-                        if s_y > half_height:
-                            s_y -= 2 * (s_y - half_height)
-                        else:
-                            s_y += 2 * (half_height - s_y)
-
-                        if e_y > half_height:
-                            e_y -= 2 * (e_y - half_height)
-                        else:
-                            e_y += 2 * (half_height - e_y)
-
-                        mir_line.start_y = s_y
-                        mir_line.end_y = e_y
-
-                        self._lines.append(mir_line)
+                    lines = self.mirror_lines_h(lines, width)
 
                 if self._v_mirror:
-                    mir_line = copy.copy(line)
-
                     height = self.get_allocated_height()
-                    half_height = height / 2
+                    lines = self.mirror_lines_v(lines, height)
 
-                    s_y = mir_line.start_y
-                    e_y = mir_line.end_y
-
-                    if s_y > half_height:
-                        s_y -= 2 * (s_y - half_height)
-                    else:
-                        s_y += 2 * (half_height - s_y)
-
-                    if e_y > half_height:
-                        e_y -= 2 * (e_y - half_height)
-                    else:
-                        e_y += 2 * (half_height - e_y)
-
-                    mir_line.start_y = s_y
-                    mir_line.end_y = e_y
-
-                    self._lines.append(mir_line)
+                for l in lines:
+                    self._lines.append(l)
 
         self._area.queue_draw()
         return True
@@ -233,7 +177,7 @@ class MainWindow(Gtk.Window):
             # Toggle vertical mirror.
             self._v_mirror = not self._v_mirror
 
-        elif event.keyval == Gdk.KEY_z:
+        elif event.keyval == Gdk.KEY_c:
             # Clear screen.
             self._buffer_image = None
 
@@ -241,9 +185,17 @@ class MainWindow(Gtk.Window):
             # Save screen to file.
             self._buffer_image.savev('Image.png', 'png', [], [])
 
+        elif event.keyval == Gdk.KEY_z:
+            # Undo the last stroke.
+            if self._undo_buffer_image:
+                self._buffer_image = self._undo_buffer_image
+
     def _button_press(self, widget, event):
         if event.button == 1:
             self._mouse_pressed = True
+
+            # We start a new stroke, make the last one permanent.
+            self._undo_buffer_image = self._buffer_image.copy()
 
     def _button_release(self, widget, event):
         if event.button == 1:
@@ -255,3 +207,69 @@ class MainWindow(Gtk.Window):
 
         self._last_x = x
         self._last_y = y
+
+    def mirror_lines_h(self, lines, width):
+        """
+        Mirrors a list of lines horizontally.
+        :param lines: A list of lines to be mirrored.
+        :return: The original lines, plus the mirrored ones.
+        """
+
+        mir_lines = lines[:]
+        half_width = width / 2
+
+        for line in lines:
+            mir_line = copy.copy(line)
+
+            s_x = mir_line.start_x
+            e_x = mir_line.end_x
+
+            if s_x > half_width:
+                s_x -= 2 * (s_x - half_width)
+            else:
+                s_x += 2 * (half_width - s_x)
+
+            if e_x > half_width:
+                e_x -= 2 * (e_x - half_width)
+            else:
+                e_x += 2 * (half_width - e_x)
+
+            mir_line.start_x = s_x
+            mir_line.end_x = e_x
+
+            mir_lines.append(mir_line)
+
+        return mir_lines
+
+    def mirror_lines_v(self, lines, height):
+        """
+        Mirrors a list of lines vertically.
+        :param lines: A list of lines to be mirrored.
+        :return: The original lines, plus the mirrored ones.
+        """
+
+        mir_lines = lines[:]
+        half_height = height / 2
+
+        for line in lines:
+            mir_line = copy.copy(line)
+
+            s_y = mir_line.start_y
+            e_y = mir_line.end_y
+
+            if s_y > half_height:
+                s_y -= 2 * (s_y - half_height)
+            else:
+                s_y += 2 * (half_height - s_y)
+
+            if e_y > half_height:
+                e_y -= 2 * (e_y - half_height)
+            else:
+                e_y += 2 * (half_height - e_y)
+
+            mir_line.start_y = s_y
+            mir_line.end_y = e_y
+
+            mir_lines.append(mir_line)
+
+        return mir_lines
