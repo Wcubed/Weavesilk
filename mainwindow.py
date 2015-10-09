@@ -19,7 +19,7 @@ class MainWindow(Gtk.Window):
         # -- Variables --
         self._h_mirror = False
         self._r_mirror = True
-        self._r_mirror_amount = 6
+        self._r_mirror_amount = 5
 
         self._last_x = 0
         self._last_y = 0
@@ -132,7 +132,7 @@ class MainWindow(Gtk.Window):
 
         # ---- Save the screen ----
         now = time.time()
-        if now - self._last_buffer_time > 0.1:
+        if now - self._last_buffer_time > 0.05:
 
             # Save screen.
             drawing_window = self._area.get_window()
@@ -159,7 +159,7 @@ class MainWindow(Gtk.Window):
         elif event.keyval == Gdk.KEY_2:
             # Red color.
             for pencil in self._pencils:
-                pencil._col = [0.8, 0.2, 0.2, 0.5]
+                pencil._col = [0.8, 0.1, 0.1, 0.5]
 
         elif event.keyval == Gdk.KEY_3:
             # Green color.
@@ -169,7 +169,7 @@ class MainWindow(Gtk.Window):
         elif event.keyval == Gdk.KEY_4:
             # Orange color.
             for pencil in self._pencils:
-                pencil._col = [0.8, 0.5, 0.2, 0.5]
+                pencil._col = [0.8, 0.2, 0.0, 0.5]
 
         elif event.keyval == Gdk.KEY_5:
             # "Black" color.
@@ -180,6 +180,11 @@ class MainWindow(Gtk.Window):
             # Purple color.
             for pencil in self._pencils:
                 pencil._col = [0.8, 0.3, 0.8, 0.5]
+
+        elif event.keyval == Gdk.KEY_7:
+            # Pink color.
+            for pencil in self._pencils:
+                pencil._col = [0.8, 0.2, 0.2, 0.5]
 
         elif event.keyval == Gdk.KEY_q:
             # Toggle horizontal mirror.
