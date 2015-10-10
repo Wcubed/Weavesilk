@@ -186,7 +186,7 @@ class MainWindow(Gtk.Window):
         elif event.keyval == Gdk.KEY_7:
             # Pink color.
             for pencil in self._pencils:
-                pencil._col = [0.8, 0.2, 0.2, 0.5]
+                pencil._col = [0.9, 0.3, 0.3, 0.5]
 
         elif event.keyval == Gdk.KEY_q:
             # Toggle horizontal mirror.
@@ -202,7 +202,8 @@ class MainWindow(Gtk.Window):
 
         elif event.keyval == Gdk.KEY_s:
             # Save screen to file.
-            self._buffer_image.savev('Image.png', 'png', [], [])
+            filename = "Images/" + time.strftime('%d-%m-%Y-%H:%M:%S') + ".png"
+            self._buffer_image.savev(filename, 'png', [], [])
 
         elif event.keyval == Gdk.KEY_z:
             # Undo the last stroke.
